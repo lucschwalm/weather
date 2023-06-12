@@ -2,16 +2,49 @@ var cityInput = $("#city");
 var searchBtn = $("#search");
 var overview = $("#overview");
 var forecastEl = $("#forecast");
+var historyEl = $("#history");
 var APIkey = "109c4e4a5597989530674ec8a676de90";
 var currentDate = dayjs().format("MM/DD/YYYY");
 
+console.log(localStorage);
+console.log(localStorage.length);
+
+function addHistory(index) {
+    var history = document.createElement("button");
+    history.classList.add("btn");
+    history.textContent = localStorage.getItem(localStorage.key(index));
+    historyEl.append(history);
+}
+
+function init() {
+    for (var i=0; i<localStorage.length; i++) {
+        addHistory(i);
+    }
+}
+
 function clearData() {
     overview.html("");
+    forecastEl.html("");
 }
+
+historyEl.on("click", function(event) {
+    var buttonPressed = event.target;
+    var city = buttonPressed.textContent;
+    clearData();
+    getResponse(city);
+})
 
 function clickHandler() {
     clearData();
     var city = cityInput.val();
+    cityInput.val("");
+    localStorage.setItem(city, city);
+
+    var history = document.createElement("button");
+    history.classList.add("btn");
+    history.textContent = localStorage.getItem(city);
+    historyEl.append(history);
+
     getResponse(city);
 }
 
@@ -21,6 +54,7 @@ async function getResponse(city) {
     var response = await fetch(queryURL);
     var jsonData = await response.json();
     console.log(jsonData);
+
     //populates html with weather data for current day
     var cityName = document.createElement("h2");
     cityName.textContent = jsonData.name + " " + currentDate;
@@ -90,3 +124,5 @@ async function getResponse(city) {
         createWeatherCard(i);
     }
 }
+
+init();
